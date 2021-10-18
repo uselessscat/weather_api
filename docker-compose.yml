@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: .
+    entrypoint: hypercorn --reload -w 1 -k uvloop -b 0.0.0.0:8000 weather.main:app
+    volumes:
+      - ./src:/usr/src
+    ports:
+      - 8000:8000
+    environment:
+      - environment=development
+      - database_uri=postgresql://postgres:postgres@db/weather
+    networks:
+      default:
+        aliases:
+          - api
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:14
+    volumes:
+      - ${PWD}/.pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: weather
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    networks:
+      default:
+        aliases:
+          - db
+networks:
+  default:

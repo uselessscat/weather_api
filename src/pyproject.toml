@@ -1,0 +1,49 @@
+[tool.poetry]
+name = "weather"
+version = "0.1.0"
+description = ""
+authors = ["Ariel Carvajal <arie.cbpro@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+# server
+hypercorn = { extras = ["uvloop"], version = "^0.11.2" }
+uvloop = "~=0.16.0"
+
+# web framework
+fastapi = "^0.66.1"
+
+# configurations
+python-dotenv = "~=0.19.1"
+
+# database
+SQLAlchemy = "^1.4.22"
+alembic = "^1.6.5"
+asyncpg = "~=0.24.0"
+pydantic = { extras = ["dotenv"], version = "^1.8.2" }
+
+[tool.poetry.dev-dependencies]
+# linting
+flake8 = "^3.9.2"   
+flake8-quotes = "^3.2.0"
+mypy = "^0.910"
+
+# testing
+pytest = "^6.2.4"
+coverage = "~=6.0"
+pytest-cov = "^2.12.1"
+pytest-xdist = "^2.3.0"
+pytest-asyncio = "^0.15.1"
+
+# data generation
+hypothesis = "^6.14.4"
+
+# debugger
+debugpy = "^1.4.1"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
