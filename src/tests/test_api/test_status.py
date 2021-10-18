@@ -7,6 +7,6 @@ class TestStatus:
 
         assert response.status_code == 200
 
-        json_response = response.json()
+        json = response.json()
 
-        assert json_response['status'] == 'running'
+        assert json['status'] == 'running'
