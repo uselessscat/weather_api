@@ -1,4 +1,5 @@
 from typing import Dict
+from datetime import datetime
 
 from fastapi import APIRouter
 
@@ -7,14 +8,17 @@ router = APIRouter(
 )
 
 
-@router.get('/ping')
-def ping() -> Dict[str, str]:
+@router.get('/status')
+def status() -> Dict[str, str]:
     '''
     Sanity check. This will let the user know that the service is operational.
     '''
-    return {'ping': 'pong'}
+    return {
+        'status': 'running',
+        'timestamp': datetime.now().isoformat()
+    }
 
 
 __all__ = [
-    router
+    'router'
 ]

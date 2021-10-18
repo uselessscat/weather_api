@@ -1,12 +1,8 @@
-from fastapi.applications import FastAPI
+from weather import create_app
+from weather.settings import settings  # An instance
 
-from weather import AppBuilder, Settings
+app = create_app(settings)
 
-# load settings from .env file or environment variables
-settings = Settings()
-app: FastAPI = AppBuilder(settings).build()
-
- 
 if __name__ == '__main__':
     # in case of running python main.py
     import asyncio

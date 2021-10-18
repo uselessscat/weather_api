@@ -16,6 +16,9 @@ class Settings(BaseSettings):
         env_file: str = '.env'
 
 
+settings = Settings()
+
 __all__ = [
-    Settings
+    'settings',
+    'Settings'
 ]

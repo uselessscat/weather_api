@@ -1,7 +1,14 @@
-from weather.app_builder import AppBuilder
-from weather.settings import Settings
+from fastapi import FastAPI
 
-__all__ = [
-    AppBuilder,
-    Settings
-]
+from weather.status import status_router
+
+
+def create_app(settings):
+    app: FastAPI = FastAPI(
+        title=settings.project_name,
+        debug=settings.debug,
+    )
+
+    app.include_router(status_router)
+
+    return app
