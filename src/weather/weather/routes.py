@@ -1,28 +1,39 @@
 from fastapi import APIRouter, Query
 
+from weather.settings import settings
+
+from .service import WeatherService
+from .repositories import LocalWeatherRepository, OnlineWeatherRepository
+from .schemas import Weather
+
 router = APIRouter(
     tags=['Weather']
 )
 
 
-@router.get('/weather')
+@router.get(
+    '/weather',
+    response_model=Weather
+)
 def get_weather(
     city: str = Query(...),
     country: str = Query(...),
 ):
-    return {
-        'location_name': f'{city}, {country}',
-        'temperature': '',
-        'wind': '',
-        'cloudiness': '',
-        'pressure': '',
-        'humidity': '',
-        'sunrise': '',
-        'sunset': '',
-        'geo_coordinates': '',
-        'requested_time': '',
-        'forecast': '',
-    }
+    local = LocalWeatherRepository()
+    online = OnlineWeatherRepository(
+        base_url=settings.weather_url,
+        api_key=settings.weather_api_key
+    )
+
+    service = WeatherService(
+        local,
+        online,
+        cache=settings.weather_cache
+    )
+
+    weather = service.get_weather(city, country)
+
+    return Weather.parse_obj(weather)
 
 
 __all__ = [

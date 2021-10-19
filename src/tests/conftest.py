@@ -1,6 +1,9 @@
-from pydantic.utils import path_type
 import pytest
 from fastapi.testclient import TestClient
+
+pytest_plugins = (
+    'tests.fixtures.online_weather',
+)
 
 
 @pytest.fixture(scope='session')
@@ -22,10 +25,15 @@ def override_settings():
 
 
 @pytest.fixture(scope='session')
-def app(override_settings):
+def settings(override_settings):
+    return override_settings
+
+
+@pytest.fixture(scope='session')
+def app(settings):
     from weather import create_app
 
-    app = create_app(override_settings)
+    app = create_app(settings)
 
     return app
 

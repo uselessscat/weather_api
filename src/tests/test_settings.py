@@ -6,5 +6,5 @@ class TestSettings:
         from weather.settings import settings
 
         assert app.title == 'weather'
-        assert settings.debug == True
+        assert settings.debug is True
         assert settings.environment == 'test'

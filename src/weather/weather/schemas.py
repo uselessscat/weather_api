@@ -12,4 +12,5 @@ class Weather(BaseModel):
     sunset: str = Field(...)
     geo_coordinates: str = Field(...)
     requested_time: str = Field(...)
-    forecast: str = Field(...)
+
+    # forecast: Optional[str] = Field(None)
