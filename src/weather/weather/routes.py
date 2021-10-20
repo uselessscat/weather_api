@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
+from sqlalchemy.orm import Session
 
 from weather.settings import settings
+from weather.database import session_dependency
 
 from .service import WeatherService
 from .repositories import LocalWeatherRepository, OnlineWeatherRepository
@@ -18,8 +20,9 @@ router = APIRouter(
 def get_weather(
     city: str = Query(...),
     country: str = Query(...),
+    session: Session = Depends(session_dependency),
 ):
-    local = LocalWeatherRepository()
+    local = LocalWeatherRepository(session=session)
     online = OnlineWeatherRepository(
         base_url=settings.weather_url,
         api_key=settings.weather_api_key

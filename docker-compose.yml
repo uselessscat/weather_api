@@ -11,6 +11,7 @@ services:
     environment:
       - environment=development
       - database_uri=postgresql://postgres:postgres@db/weather
+      - weather_api_key=${weather_api_key}
     networks:
       default:
         aliases:

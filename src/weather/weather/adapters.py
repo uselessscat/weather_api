@@ -4,7 +4,7 @@ from datetime import datetime
 from weather.utils.wind_scale import WindScale
 
 
-class OnlineToLocalAdapter:
+class ModelToResponseAdapter:
     CLOUDINESS_PERCENT: int = 0
     CLOUDINESS_DESCRIPTION: int = 1
     CLOUDINESS_MAP: List[Tuple[float, str]] = [
@@ -16,8 +16,8 @@ class OnlineToLocalAdapter:
         (0.0, 'Clear sky'),
     ]
 
-    def __init__(self, data):
-        self.data = data
+    def __init__(self, model):
+        self.model = model
 
     @classmethod
     def _get_cloudiness(cls, percent):
@@ -29,31 +29,29 @@ class OnlineToLocalAdapter:
         )
 
     def adapt(self):
-        parse = datetime.utcfromtimestamp
-        data = self.data
-        sys = data.get('sys')
-        main = data.get('main')
+        model = self.model
 
-        city = data.get('name')
-        time = parse(data.get('dt')).isoformat()
-        country = sys.get('country')
+        city = model.get('city')
+        country = model.get('country')
 
-        sunrise = parse(sys.get('sunrise')).time().strftime('%H:%M')
-        sunset = parse(sys.get('sunset')).time().strftime('%H:%M')
-
-        temperature = main.get('temp')
-        pressure = main.get('pressure')
-        humidity = main.get('humidity')
-
-        wind_speed = data.get('wind').get('speed')
-        wind_deg = data.get('wind').get('deg')  # TODO: use description
+        wind_speed = model.get('wind_speed')
+        wind_deg = model.get('wind_deg')
         wind_desc = WindScale.get_description(wind_speed)
 
-        cloud_percent = data.get('clouds').get('all')
+        cloud_percent = model.get('cloudiness')
         cloudiness = self._get_cloudiness(cloud_percent)
 
-        lat = data.get('coord').get('lat')
-        lon = data.get('coord').get('lon')
+        temperature = model.get('temperature')
+        pressure = model.get('pressure')
+        humidity = model.get('humidity')
+
+        sunrise = model.get('sunrise').time().strftime('%H:%M')
+        sunset = model.get('sunset').time().strftime('%H:%M')
+
+        lat = model.get('lat')
+        lon = model.get('lng')
+
+        time = model.get('requested_time').isoformat()
 
         return {
             'location_name':  f'{city}, {country}',
@@ -67,4 +65,50 @@ class OnlineToLocalAdapter:
             'geo_coordinates': f'[{lat}, {lon}]',
             'requested_time': time,
             # 'forecast': {}
+        }
+
+
+class OnlineToLocalAdapter:
+    def __init__(self, data):
+        self.data = data
+
+    def adapt(self):
+        data = self.data
+        city = data.get('name').lower()
+
+        sys = data.get('sys')
+        country = sys.get('country').lower()
+
+        main = data.get('main')
+        temperature = main.get('temp')
+        pressure = main.get('pressure')
+        humidity = main.get('humidity')
+
+        wind = data.get('wind')
+        wind_speed = wind.get('speed')
+        wind_deg = wind.get('deg')
+
+        cloud_percent = data.get('clouds').get('all')
+
+        lat = data.get('coord').get('lat')
+        lng = data.get('coord').get('lon')
+
+        sunrise = datetime.utcfromtimestamp(sys.get('sunrise'))
+        sunset = datetime.utcfromtimestamp(sys.get('sunset'))
+        time = datetime.utcfromtimestamp(data.get('dt'))
+
+        return {
+            'city': city,
+            'country': country,
+            'wind_speed': wind_speed,
+            'wind_deg': wind_deg,
+            'cloudiness': cloud_percent,
+            'temperature': temperature,
+            'pressure': pressure,
+            'humidity': humidity,
+            'sunrise': sunrise,
+            'sunset': sunset,
+            'lat': lat,
+            'lng': lng,
+            'requested_time': time,
         }

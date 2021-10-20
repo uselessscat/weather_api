@@ -1,14 +1,37 @@
 import urllib
 import requests
+from sqlalchemy import select, insert
 
 from weather.weather.adapters import OnlineToLocalAdapter
 
 from .abstract_repository import WeatherRepository
+from .models import WeatherData
 
 
 class LocalWeatherRepository(WeatherRepository):
+    def __init__(self, *args, session, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.session = session
+
     def get_by_city(self, city: str, country: str):
-        pass
+        stmt = self.session.execute(
+            select(WeatherData)
+            .filter(WeatherData.city.ilike(city))
+            .filter(WeatherData.country.ilike(country))
+            .order_by(WeatherData.created_date.desc())
+        )
+
+        return stmt.scalars().first()
+
+    def create(self, data):
+        stmt = self.session.execute(
+            insert(WeatherData).values(**data)
+        )
+
+        self.session.commit()
+
+        return stmt
 
 
 class OnlineWeatherRepository(WeatherRepository):
