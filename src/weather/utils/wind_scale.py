@@ -1,11 +1,8 @@
-from typing import List, Tuple
-
-
 class WindScale:
     WIND_SCALE_SPEED: int = 0
     WIND_SCALE_DESCRIPTION: int = 1
 
-    WIND_SCALE_MAP: List[Tuple[float, str]] = [
+    WIND_SCALE_MAP: list[tuple[float, str]] = [
         # 0: speed, 1: description
         (32.7, 'Hurricane force'),
         (28.5, 'Violent storm'),

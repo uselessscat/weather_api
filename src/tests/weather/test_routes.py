@@ -35,7 +35,7 @@ class TestWeatherRoutes:
         assert json['sunrise'] == '09:57'
         assert json['sunset'] == '22:57'
         assert json['geo_coordinates'] == '[-33.4569, -70.6483]'
-        assert json['requested_time'] == '2021-10-19T02:00:47'
+        assert json['requested_time'] == '2021-10-19T02:00:47+00:00'
 
     @responses.activate
     def test_get_weather_use_cache(

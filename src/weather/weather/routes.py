@@ -36,7 +36,7 @@ def get_weather(
 
     weather = service.get_weather(city, country)
 
-    return Weather.parse_obj(weather)
+    return Weather.model_validate(weather)
 
 
 __all__ = [

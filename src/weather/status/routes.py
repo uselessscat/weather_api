@@ -1,4 +1,3 @@
-from typing import Dict
 from datetime import datetime
 
 from fastapi import APIRouter
@@ -9,7 +8,7 @@ router = APIRouter(
 
 
 @router.get('/status')
-def status() -> Dict[str, str]:
+def status() -> dict[str, str]:
     '''
     Sanity check. This will let the user know that the service is operational.
     '''

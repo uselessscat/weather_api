@@ -3,5 +3,6 @@
     "editor.rulers": [
       79
     ]
-  }
+  },
+  "python.defaultInterpreterPath": "${workspaceFolder}/src/.venv/bin/python"
 }

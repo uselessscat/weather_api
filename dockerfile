@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.12
 
 WORKDIR /usr/src
 
@@ -6,7 +6,7 @@ WORKDIR /usr/src
 COPY src/poetry.loc[k] src/pyproject.toml ./
 
 # Install deps
-RUN pip install 'poetry~=1.1.7' \
+RUN pip install 'poetry~=1.8' \
     && poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi
 

@@ -5,7 +5,7 @@
 To run this project:
 
 - first clone the `.env.example` file and fill the required variables.
-- Run `docker-compose up --build`
+- Run `docker compose up --build`
 - Run migrations. See migrations section below
 - Access the api through [localhost:8000](http://localhost:8000)
 

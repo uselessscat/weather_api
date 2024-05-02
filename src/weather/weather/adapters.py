@@ -1,5 +1,4 @@
-from typing import List, Tuple
-from datetime import datetime
+from datetime import datetime, timezone
 
 from weather.utils.wind_scale import WindScale
 
@@ -7,7 +6,7 @@ from weather.utils.wind_scale import WindScale
 class ModelToResponseAdapter:
     CLOUDINESS_PERCENT: int = 0
     CLOUDINESS_DESCRIPTION: int = 1
-    CLOUDINESS_MAP: List[Tuple[float, str]] = [
+    CLOUDINESS_MAP: list[tuple[float, str]] = [
         # 0: percent, 1: description
         (85.0, 'Overcast clouds'),
         (51.0, 'Broken clouds'),
@@ -93,9 +92,9 @@ class OnlineToLocalAdapter:
         lat = data.get('coord').get('lat')
         lng = data.get('coord').get('lon')
 
-        sunrise = datetime.utcfromtimestamp(sys.get('sunrise'))
-        sunset = datetime.utcfromtimestamp(sys.get('sunset'))
-        time = datetime.utcfromtimestamp(data.get('dt'))
+        sunrise = datetime.fromtimestamp(sys.get('sunrise'), timezone.utc)
+        sunset = datetime.fromtimestamp(sys.get('sunset'), timezone.utc)
+        time = datetime.fromtimestamp(data.get('dt'), timezone.utc)
 
         return {
             'city': city,

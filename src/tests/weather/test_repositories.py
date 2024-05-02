@@ -81,6 +81,6 @@ class TestWeatherOnlineRepository:
         assert data['humidity'] == 28
         assert data['lat'] == -33.4569
         assert data['lng'] == -70.6483
-        assert data['sunrise'].isoformat() == '2021-10-18T09:57:21'
-        assert data['sunset'].isoformat() == '2021-10-18T22:57:42'
-        assert data['requested_time'].isoformat() == '2021-10-19T02:00:47'
+        assert data['sunrise'].isoformat() == '2021-10-18T09:57:21+00:00'
+        assert data['sunset'].isoformat() == '2021-10-18T22:57:42+00:00'
+        assert data['requested_time'].isoformat() == '2021-10-19T02:00:47+00:00'
