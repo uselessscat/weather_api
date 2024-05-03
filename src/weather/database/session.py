@@ -1,15 +1,20 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from weather.settings import settings
 
-engine = create_engine(
+engine: AsyncEngine = create_async_engine(
     settings.database_uri,
-    pool_pre_ping=True
+    pool_pre_ping=True,
 )
 
-session_maker = sessionmaker(
+session_maker: async_sessionmaker[AsyncSession] = async_sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    expire_on_commit=False,
+    bind=engine,
 )

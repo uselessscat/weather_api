@@ -2,7 +2,7 @@ from sqlalchemy.orm import as_declarative
 
 from .mixins import (
     IdentifiedMixin,
-    TimestampMixin
+    TimestampMixin,
 )
 
 

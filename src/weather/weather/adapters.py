@@ -53,7 +53,7 @@ class ModelToResponseAdapter:
         time = model.get('requested_time').isoformat()
 
         return {
-            'location_name':  f'{city}, {country}',
+            'location_name': f'{city}, {country}',
             'temperature': f'{temperature} °K',
             'wind': f'{wind_desc}, {wind_speed} m/s, {wind_deg}°',
             'cloudiness': cloudiness,
@@ -92,9 +92,15 @@ class OnlineToLocalAdapter:
         lat = data.get('coord').get('lat')
         lng = data.get('coord').get('lon')
 
-        sunrise = datetime.fromtimestamp(sys.get('sunrise'), timezone.utc)
-        sunset = datetime.fromtimestamp(sys.get('sunset'), timezone.utc)
-        time = datetime.fromtimestamp(data.get('dt'), timezone.utc)
+        sunrise = datetime.fromtimestamp(
+            sys.get('sunrise'), tz=timezone.utc
+        ).replace(tzinfo=None)
+        sunset = datetime.fromtimestamp(
+            sys.get('sunset'), tz=timezone.utc
+        ).replace(tzinfo=None)
+        time = datetime.fromtimestamp(data.get('dt'), tz=timezone.utc).replace(
+            tzinfo=None
+        )
 
         return {
             'city': city,

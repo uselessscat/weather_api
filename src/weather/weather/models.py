@@ -1,5 +1,5 @@
 from sqlalchemy.schema import Column
-from sqlalchemy.types import String, DateTime, Integer, Float, DECIMAL
+from sqlalchemy.types import DECIMAL, DateTime, Float, Integer, String
 
 from weather.database import BaseModel
 

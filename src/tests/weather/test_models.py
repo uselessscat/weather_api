@@ -5,14 +5,14 @@ from sqlalchemy import select
 
 
 class TestWeatherModel:
-    def test_create_weather_data_model(
+    async def test_create_weather_data_model(
         self,
         db_session,
-        add_weather_data,
+        add_weather_data
     ):
         from weather.weather.models import WeatherData
 
-        model = add_weather_data(
+        model = await add_weather_data(
             city='Arica',
             country='CL',
             wind_speed=1.0,
@@ -21,11 +21,11 @@ class TestWeatherModel:
             temperature=270,
             pressure=123,
             humidity=90,
-            sunrise='2021-10-18T22:57:42',
-            sunset='2021-10-18T22:57:42',
+            sunrise=datetime.fromisoformat('2021-10-18T22:57:42'),
+            sunset=datetime.fromisoformat('2021-10-18T22:57:42'),
             lat=Decimal('1.15'),
             lng=Decimal('2.15'),
-            requested_time='2021-10-19T02:00:47',
+            requested_time=datetime.fromisoformat('2021-10-19T02:00:47'),
         )
 
         assert isinstance(model.id, int)
@@ -33,11 +33,9 @@ class TestWeatherModel:
         # force the orm to reload object instances
         db_session.expire_all()
 
-        stmt = db_session.execute(
-            select(WeatherData).filter_by(id=model.id)
-        )
+        stmt = await db_session.execute(select(WeatherData).filter_by(id=model.id))
 
-        db_model = stmt.scalars().first()
+        db_model = stmt.scalar_one()
 
         assert db_model.city == 'Arica'
         assert db_model.country == 'CL'
@@ -50,9 +48,11 @@ class TestWeatherModel:
         assert db_model.lat == Decimal('1.15')
         assert db_model.lng == Decimal('2.15')
 
-        assert db_model.sunrise == \
-            datetime.fromisoformat('2021-10-18T22:57:42')
-        assert db_model.sunset ==  \
-            datetime.fromisoformat('2021-10-18T22:57:42')
-        assert db_model.requested_time == \
-            datetime.fromisoformat('2021-10-19T02:00:47')
+        assert db_model.sunrise == datetime.fromisoformat(
+            '2021-10-18T22:57:42')
+        assert db_model.sunset == datetime.fromisoformat('2021-10-18T22:57:42')
+        assert db_model.requested_time == datetime.fromisoformat(
+            '2021-10-19T02:00:47'
+        )
+
+        await db_session.commit()

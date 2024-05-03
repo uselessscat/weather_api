@@ -1,31 +1,46 @@
-import responses
-from responses import matchers
+import respx
+from httpx import Response
 
 from weather.weather.repositories import (
+    LocalWeatherRepository,
     OnlineWeatherRepository,
-    LocalWeatherRepository
 )
 
 
 class TestWeatherRepository:
-    def test_repository_retrieve_response_from_database(
+    async def test_repository_retrieve_response_from_database(
         self,
         db_session,
         add_weather_data,
         fake_weather_data,
     ):
+        from sqlalchemy import event
+
+        @event.listens_for(db_session.sync_session, "after_transaction_create")
+        def after_transaction_create(s, t):
+            print('after_transaction_create', s, t)
+
+        @event.listens_for(db_session.sync_session, 'after_commit')
+        def receive_after_commit(session):
+            print('after_commit', session.get_transaction())
+
+        @event.listens_for(db_session.sync_session, 'before_commit')
+        def receive_before_commit(session):
+            print('before_commit', session.get_transaction())
+
+
         # Create fake data to run the test
         fake_data = fake_weather_data(
             city='La Serena',
             country='CL',
         )
-        add_weather_data(**fake_data)
+        await add_weather_data(**fake_data)
 
         db_session.expire_all()
 
         repo = LocalWeatherRepository(session=db_session)
 
-        weather_data = repo.get_by_city('La Serena', 'CL')
+        weather_data = await repo.get_by_city('La Serena', 'CL')
 
         assert weather_data is not None
         assert weather_data.wind_speed == fake_data.get('wind_speed')
@@ -40,35 +55,26 @@ class TestWeatherRepository:
         assert weather_data.lng == fake_data.get('lng')
         assert weather_data.requested_time == fake_data.get('requested_time')
 
+        #print((await db_session.connection()).get_transaction().info)
+        #await db_session.commit()
+
 
 class TestWeatherOnlineRepository:
-    @responses.activate
-    def test_repository_makes_requests(
-        self,
-        static_weather_response
-    ):
+    @respx.mock
+    async def test_repository_makes_requests(self, static_weather_response):
         response = static_weather_response()
         response['name'] = 'Cordoba'
         response['sys']['country'] = 'AR'
 
-        responses.add(
-            responses.GET,
-            'https://myweather.com/data/2.5/weather',
-            json=response,
-            match=[
-                matchers.query_param_matcher({
-                    'appid': 'an-api-key',
-                    'q': 'Cordoba,AR'
-                })
-            ]
+        respx.get('https://myweather.com/data/2.5/weather').mock(
+            return_value=Response(200, json=response)
         )
 
         repository = OnlineWeatherRepository(
-            'https://myweather.com',
-            'an-api-key'
+            'https://myweather.com', 'an-api-key'
         )
 
-        data = repository.get_by_city('Cordoba', 'AR')
+        data = await repository.get_by_city('Cordoba', 'AR')
 
         # for now just check first level
         assert data['city'] == 'cordoba'
@@ -81,6 +87,6 @@ class TestWeatherOnlineRepository:
         assert data['humidity'] == 28
         assert data['lat'] == -33.4569
         assert data['lng'] == -70.6483
-        assert data['sunrise'].isoformat() == '2021-10-18T09:57:21+00:00'
-        assert data['sunset'].isoformat() == '2021-10-18T22:57:42+00:00'
-        assert data['requested_time'].isoformat() == '2021-10-19T02:00:47+00:00'
+        assert data['sunrise'].isoformat() == '2021-10-18T09:57:21'
+        assert data['sunset'].isoformat() == '2021-10-18T22:57:42'
+        assert data['requested_time'].isoformat() == '2021-10-19T02:00:47'

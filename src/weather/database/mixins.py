@@ -1,6 +1,6 @@
-from sqlalchemy.sql import func
 from sqlalchemy.schema import Column
-from sqlalchemy.types import Integer, DateTime
+from sqlalchemy.sql import func
+from sqlalchemy.types import DateTime, Integer
 
 
 class IdentifiedMixin:

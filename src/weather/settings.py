@@ -4,7 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    ''' App settings '''
+    """App settings"""
+
     model_config = SettingsConfigDict(env_file='.env')
 
     project_name: str = 'weather'
@@ -22,7 +23,4 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-__all__ = [
-    'settings',
-    'Settings'
-]
+__all__ = ['settings', 'Settings']

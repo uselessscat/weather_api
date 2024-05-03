@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 
-@pytest.fixture
+@pytest.fixture()
 def fake_weather_data(fake):
     def _fake_weather_data(**kwargs):
         return {
@@ -22,7 +22,7 @@ def fake_weather_data(fake):
                 'lng': fake.longitude(),
                 'requested_time': fake.date_time(),
             },
-            **kwargs
+            **kwargs,
         }
 
     return _fake_weather_data

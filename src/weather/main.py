@@ -8,8 +8,8 @@ if __name__ == '__main__':
     import asyncio
 
     import uvloop
-    from hypercorn.config import Config
     from hypercorn.asyncio import serve
+    from hypercorn.config import Config
 
     uvloop.install()
 

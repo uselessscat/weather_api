@@ -9,7 +9,7 @@ services:
       - 8000:8000
     environment:
       - environment=development
-      - database_uri=postgresql://postgres:postgres@db/weather
+      - database_uri=postgresql+asyncpg://postgres:postgres@db/weather
       - weather_api_key=${weather_api_key}
     networks:
       default:

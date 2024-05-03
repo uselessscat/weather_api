@@ -1,11 +1,25 @@
 import pytest
-from fastapi.testclient import TestClient
+from httpx import ASGITransport, AsyncClient
+from pytest_asyncio import is_async_test
+from sqlalchemy.ext.asyncio import create_async_engine
 
 pytest_plugins = (
     'tests.fixtures.online_weather',
     'tests.fixtures.models',
     'tests.fixtures.fakers',
 )
+
+
+import logging
+#logging.basicConfig(level=logging.INFO)
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+
+def pytest_collection_modifyitems(items):
+    pytest_asyncio_tests = (item for item in items if is_async_test(item))
+    session_scope_marker = pytest.mark.asyncio(scope='session')
+
+    for async_test in pytest_asyncio_tests:
+        async_test.add_marker(session_scope_marker, append=False)
 
 
 @pytest.fixture(scope='session')
@@ -16,40 +30,40 @@ def settings():
 
 
 @pytest.fixture(scope='session')
-def app(settings):
+async def client(settings):  # noqa: ARG001
     from weather import create_app
-    from weather.database.session import session_maker
-    from weather.database import BaseModel
 
     app = create_app(settings)
 
-    session = session_maker()
-    BaseModel.metadata.create_all(session.get_bind())
-
-    yield app
-
-    BaseModel.metadata.drop_all(session.get_bind())
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url='http://127.0.0.1',
+    ) as client:
+        yield client
 
 
 @pytest.fixture(scope='session')
-def client(app):
-    return TestClient(app)
-
-
-@pytest.fixture()
-def db_session():
+async def db_session(settings):
+    from weather.database import BaseModel
     from weather.database.session import session_maker
 
-    try:
-        session = session_maker()
+    engine = create_async_engine(
+        settings.database_uri,
+        pool_pre_ping=True,
+    )
 
+    async with engine.begin() as conn:
+        await conn.run_sync(BaseModel.metadata.create_all)
+
+    async with session_maker() as session:
         yield session
-    finally:
-        session.close()
+
+    async with engine.begin() as conn:
+        await conn.run_sync(BaseModel.metadata.drop_all)
 
 
 @pytest.fixture(scope='session')
-def fake(app):
+def fake():
     from faker import Faker
 
     faker = Faker()

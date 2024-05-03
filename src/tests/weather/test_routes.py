@@ -1,26 +1,22 @@
-import responses
+import respx
+from httpx import Response
 from sqlalchemy import update
 
 
 class TestWeatherRoutes:
-    @responses.activate
-    def test_get_weather_response_structure(
-        self,
-        settings,
-        client,
-        static_weather_response
+    @respx.mock
+    async def test_get_weather_response_structure(
+        self, settings, client, static_weather_response
     ):
         # prepare the response from online weather api
         url = settings.weather_url + '/data/2.5/weather'
-        responses.add(responses.GET, url, json=static_weather_response())
+        respx.get(url).mock(
+            return_value=Response(200, json=static_weather_response())
+        )
 
         # do the call and assertions
-        response = client.get(
-            '/weather',
-            params={
-                'city': 'Santiago',
-                'country': 'CL'
-            }
+        response = await client.get(
+            '/weather', params={'city': 'Santiago', 'country': 'CL'}
         )
 
         assert response.status_code == 200
@@ -35,15 +31,11 @@ class TestWeatherRoutes:
         assert json['sunrise'] == '09:57'
         assert json['sunset'] == '22:57'
         assert json['geo_coordinates'] == '[-33.4569, -70.6483]'
-        assert json['requested_time'] == '2021-10-19T02:00:47+00:00'
+        assert json['requested_time'] == '2021-10-19T02:00:47'
 
-    @responses.activate
-    def test_get_weather_use_cache(
-        self,
-        settings,
-        client,
-        db_session,
-        static_weather_response
+    @respx.mock
+    async def test_get_weather_use_cache(
+        self, settings, client, db_session, static_weather_response
     ):
         from weather.weather.models import WeatherData
 
@@ -52,15 +44,11 @@ class TestWeatherRoutes:
         response['name'] = 'Valdivia'
 
         url = settings.weather_url + '/data/2.5/weather'
-        responses.add(responses.GET, url, json=response)
+        respx.get(url).mock(return_value=Response(200, json=response))
 
         # do the call and assertions
-        response = client.get(
-            '/weather',
-            params={
-                'city': 'Valdivia',
-                'country': 'CL'
-            }
+        response = await client.get(
+            '/weather', params={'city': 'Valdivia', 'country': 'CL'}
         )
 
         assert response.status_code == 200
@@ -70,7 +58,7 @@ class TestWeatherRoutes:
         assert json['temperature'] == '293.62 °K'
 
         # we will update the row to check that the api retrieves from database
-        db_session.execute(
+        await db_session.execute(
             update(WeatherData)
             # ! investigate why this does now work (ilike)
             # .filter(WeatherData.city.ilike('Valdivia'))
@@ -79,15 +67,11 @@ class TestWeatherRoutes:
             .where(WeatherData.country == 'cl')
             .values(temperature=100.1)
         )
-        db_session.commit()
+        await db_session.commit()
 
         # do the call and assertions
-        response = client.get(
-            '/weather',
-            params={
-                'city': 'Valdivia',
-                'country': 'CL'
-            }
+        response = await client.get(
+            '/weather', params={'city': 'Valdivia', 'country': 'CL'}
         )
 
         assert response.status_code == 200
