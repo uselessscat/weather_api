@@ -14,21 +14,6 @@ class TestWeatherRepository:
         add_weather_data,
         fake_weather_data,
     ):
-        from sqlalchemy import event
-
-        @event.listens_for(db_session.sync_session, "after_transaction_create")
-        def after_transaction_create(s, t):
-            print('after_transaction_create', s, t)
-
-        @event.listens_for(db_session.sync_session, 'after_commit')
-        def receive_after_commit(session):
-            print('after_commit', session.get_transaction())
-
-        @event.listens_for(db_session.sync_session, 'before_commit')
-        def receive_before_commit(session):
-            print('before_commit', session.get_transaction())
-
-
         # Create fake data to run the test
         fake_data = fake_weather_data(
             city='La Serena',
@@ -54,9 +39,6 @@ class TestWeatherRepository:
         assert weather_data.lat == fake_data.get('lat')
         assert weather_data.lng == fake_data.get('lng')
         assert weather_data.requested_time == fake_data.get('requested_time')
-
-        #print((await db_session.connection()).get_transaction().info)
-        #await db_session.commit()
 
 
 class TestWeatherOnlineRepository:

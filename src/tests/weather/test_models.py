@@ -6,9 +6,7 @@ from sqlalchemy import select
 
 class TestWeatherModel:
     async def test_create_weather_data_model(
-        self,
-        db_session,
-        add_weather_data
+        self, db_session, add_weather_data
     ):
         from weather.weather.models import WeatherData
 
@@ -28,12 +26,14 @@ class TestWeatherModel:
             requested_time=datetime.fromisoformat('2021-10-19T02:00:47'),
         )
 
+        mid = model.id
         assert isinstance(model.id, int)
 
-        # force the orm to reload object instances
         db_session.expire_all()
-
-        stmt = await db_session.execute(select(WeatherData).filter_by(id=model.id))
+        async with db_session.begin():
+            stmt = await db_session.execute(
+                select(WeatherData).filter_by(id=mid)
+            )
 
         db_model = stmt.scalar_one()
 
@@ -48,11 +48,8 @@ class TestWeatherModel:
         assert db_model.lat == Decimal('1.15')
         assert db_model.lng == Decimal('2.15')
 
-        assert db_model.sunrise == datetime.fromisoformat(
-            '2021-10-18T22:57:42')
+        assert db_model.sunrise == datetime.fromisoformat('2021-10-18T22:57:42')
         assert db_model.sunset == datetime.fromisoformat('2021-10-18T22:57:42')
         assert db_model.requested_time == datetime.fromisoformat(
             '2021-10-19T02:00:47'
         )
-
-        await db_session.commit()

@@ -95,9 +95,11 @@ class OnlineToLocalAdapter:
         sunrise = datetime.fromtimestamp(
             sys.get('sunrise'), tz=timezone.utc
         ).replace(tzinfo=None)
+
         sunset = datetime.fromtimestamp(
             sys.get('sunset'), tz=timezone.utc
         ).replace(tzinfo=None)
+
         time = datetime.fromtimestamp(data.get('dt'), tz=timezone.utc).replace(
             tzinfo=None
         )

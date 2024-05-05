@@ -10,10 +10,6 @@ pytest_plugins = (
 )
 
 
-import logging
-#logging.basicConfig(level=logging.INFO)
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
-
 def pytest_collection_modifyitems(items):
     pytest_asyncio_tests = (item for item in items if is_async_test(item))
     session_scope_marker = pytest.mark.asyncio(scope='session')

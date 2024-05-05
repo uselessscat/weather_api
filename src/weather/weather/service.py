@@ -30,7 +30,8 @@ class WeatherService:
 
             if is_cache_outdated:
                 weather_data = await self.online.get_by_city(
-                    lower_city, lower_country
+                    lower_city,
+                    lower_country,
                 )
 
                 await self.update_weather(weather_data)
@@ -40,7 +41,8 @@ class WeatherService:
                 weather_data = model.__dict__
         else:
             weather_data = await self.online.get_by_city(
-                lower_city, lower_country
+                lower_city,
+                lower_country,
             )
 
             await self.update_weather(weather_data)

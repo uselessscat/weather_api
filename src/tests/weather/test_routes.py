@@ -58,16 +58,13 @@ class TestWeatherRoutes:
         assert json['temperature'] == '293.62 °K'
 
         # we will update the row to check that the api retrieves from database
-        await db_session.execute(
-            update(WeatherData)
-            # ! investigate why this does now work (ilike)
-            # .filter(WeatherData.city.ilike('Valdivia'))
-            # .filter(WeatherData.country.ilike('CL'))
-            .where(WeatherData.city == 'valdivia')
-            .where(WeatherData.country == 'cl')
-            .values(temperature=100.1)
-        )
-        await db_session.commit()
+        async with db_session.begin():
+            await db_session.execute(
+                update(WeatherData)
+                .filter(WeatherData.city.ilike('Valdivia'))
+                .filter(WeatherData.country.ilike('CL'))
+                .values(temperature=100.1)
+            )
 
         # do the call and assertions
         response = await client.get(
@@ -75,5 +72,6 @@ class TestWeatherRoutes:
         )
 
         assert response.status_code == 200
+
         json = response.json()
         assert json['temperature'] == '100.10 °K'

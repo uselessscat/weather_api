@@ -28,9 +28,9 @@ class LocalWeatherRepository(WeatherRepository):
 
     async def create(self, data):
         async with self.session.begin():
-            stmt = await self.session.execute(insert(WeatherData).values(**data))
-
-            return stmt
+            return await self.session.execute(
+                insert(WeatherData).values(**data)
+            )
 
 
 class OnlineWeatherRepository(WeatherRepository):
